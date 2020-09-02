@@ -121,7 +121,7 @@ class Person
 			other._time_step_infected_at = 0;
 		}
 
-	// protected:
+	protected:
 
 		// SETTERS
 
