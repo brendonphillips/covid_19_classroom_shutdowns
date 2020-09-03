@@ -13,11 +13,11 @@ Results we're interested in (for each parameter combination):
 6) Evolution of the health of the population (how many people are sick at each time step, for example). We're also interested in seeing when the population infection rate peaks within the first month of disease spread.
 7) Number of classrooms closed at each time step. 
 
-There are three code files (beginning with "REAL_"): REAL_Person.hpp describes each agent, REAL_Town.hpp describes the environment (the population, school, households, etc) and main file REAL_Simulation_parallel.cpp runs the simulation. Model output (of 2000 trials) is printed to a separate CSV for each unique combination of parameter values.
+There are three code files (``` REAL_* ```) used for the simulation: ``` REAL_Person.hpp ``` describes each agent, ``` REAL_Town.hpp ``` describes the environment (the population, school, households, etc) and main file ``` REAL_Simulation_parallel.cpp ``` runs the simulation. Model output (of 2000 trials) is printed to a separate CSV for each unique combination of parameter values.
 
 ## INDIVIDUALS
 
-### REAL_Person.hpp (object name Person)
+### ``` REAL_Person.hpp ``` (object name Person)
 The characteristics of each agent are :
 1. Age - a categorical age, either child (C) or adult (A),
 2. Household - the number of the household that the agent belongs to,
@@ -31,8 +31,40 @@ The characteristics of each agent are :
 
 Also in the file are constructors, getters and an overload for the stream insertion operator. Setters are protected, to be used only by the Town class; many of the agents are collected (e.g. all Susceptible agents, all agents in House #2, agents assigned to Cohort 1 in Classroom #2, etc). To make sure that agent characteristics aren't updated without corresponding changes to the containers in the Town class, the only interface is with Town. All necessary changes are made there.
 
-### UNIT_TEST_Person_humourless.cpp
+### ``` UNIT_TEST_Person_humourless.cpp ```
 
 Comment the access specifier ``` protected: ``` in REAL_Person.hpp and compile with ``` g++ UNIT_TEST_Person_humourless.cpp -o test ```.
 
 Test of the Person class: changing disease status, household number, classroom number, constructors and printing.
+
+## POPULATION AND ENVIRONMENT
+
+### ``` REAL_Town.hpp ``` (object name TOWN)
+
+The characteristics of each Town are:
+1) Contact matrices (school and home) - Canada-specific contact rates between children and adults in classrooms and households respectively,
+2) Population, IDs - a vector of Person object that make up the population, and a list of their numbers (respectively),
+3) Households - the key is the number of the household, the value is a set of integers representing household members,
+4) School - the key is the number of the classroom, the value is a set of integers representing the teachers and children assigned to that room,
+5) Number of days shutdown due to illness - the key is the number of the classroom, the value is an integer representing the number of calendar days since the class has been shut down
+6) Substitute list - if a teacher gets sick, they must be replaced with another adult drawn from the population; this keeps track of which substitute teacher is covering for which teacher. the key is the number of the symptomatic teacher, the value is the number of the substitute,
+7) Disease compartments - the key is the infection state (for example, 'S' for susceptible), the value is the set of all agents currently in that stage of the infection,
+8) Run time - the number of calendar days (time steps) for which the simulation has been running,
+9) Cohorts - the key is the number of the cohort, the value is a set of all children assigned to that cohort (not separated by classroom). Teachers are placed in Cohort 0 since they go to the school every day; the same with children in a single-cohort scenario. If there are two cohorts, they're numbered 1 and 2.
+10) Places infected - the key is a string representing the place of infection (household, class, common area, community), the value is the set of all agents infected in that location.
+
+All member functions ``` check_* ``` are used in assertions to check function inputs, and functions ``` print_* ``` output to the terminal. The stream insertion operator prints a summary of the Town object.
+
+Notable functions:
+- ``` replace_sick_teacher ```: when a teacher falls ill and does not recover in time for the start of class, a substitute must be chosen from a household with no-one attending the educational institution in any capacity. 'Extra households' are made in the main simulation for this reason. If, for some reason, a substitute can't be found with that constraint, the trial will print an error message and quit. 
+- ``` agents ``` vs. ``` agents_in_school ```: the ``` agents ``` function returns a set of all individuals in the population with the desired status, while ``` agents_in_school ``` returns a set of only students and teachers. The same applied to the functions ``` *_proportion ```.
+- ``` set_classroom ```: cohort number -1 represents anyone not attending the school in any capacity, cohort 0 represents those individuals who go to class every day during the school week (all teachers, and students in a single cohort scenario), and cohorts 1 and 2 represent the sets of students that alternate based on week (even/odd).
+
+### ``` UNIT_Test_Town_general.cpp ```
+
+Compile with ``` g++ UNIT_TEST_Town_general.cpp -o test ```.
+
+
+
+
+
