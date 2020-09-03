@@ -3,7 +3,7 @@
 
 /*
 	I put *lots* of assertions in the code to make sure I didn't misspell or misroute anything.
-	Turn all the asserts off when gathering data. I reckon it's ~20 times faster without the assertions.
+	Turn all the asserts off (#define NDEBUG in REAL_Town.hpp) when gathering data. I reckon it's ~20 times faster without the assertions.
 */
 #define NDEBUG
 
