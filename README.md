@@ -29,4 +29,10 @@ The characteristics of each agent are :
 8. Cohort - if we're dividing students into cohorts by week, this is either 1 or 2 (to see which week the agent will be in class),
 9. Time step infected - tells on which day the agent was infected.
 
-Also in the file are constructors, getters and an overload for the stream insertion operator. Setters are protected, to be used only by the Town class; many of the agents are grouped (e.g. all Susceptible agents, all agents in House #2, agents assigned to Cohort 1 in Classroom #2, etc). To make sure that agent characteristics aren't update without corresponding changes to the containers in the Town class, the only interface is with the Town class. All necessary changes are made there.
+Also in the file are constructors, getters and an overload for the stream insertion operator. Setters are protected, to be used only by the Town class; many of the agents are collected (e.g. all Susceptible agents, all agents in House #2, agents assigned to Cohort 1 in Classroom #2, etc). To make sure that agent characteristics aren't updated without corresponding changes to the containers in the Town class, the only interface is with Town. All necessary changes are made there.
+
+### UNIT_TEST_Person_humourless.cpp
+
+Comment the access specifier ``` protected: ``` in REAL_Person.hpp and compile with ``` g++ UNIT_TEST_Person_humourless.cpp -o test ```.
+
+Test of the Person class: changing disease status, household number, classroom number, constructors and printing.
