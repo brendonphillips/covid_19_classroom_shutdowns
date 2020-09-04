@@ -13,7 +13,7 @@ Results we're interested in (for each parameter combination):
 - Evolution of the health of the population (how many people are sick at each time step, for example). We're also interested in seeing when the population infection rate peaks within the first month of disease spread.
 - Number of classrooms closed at each time step. 
 
-There are three code files (``` REAL_* ```) used for the simulation: ``` REAL_Person.hpp ``` describes each agent, ``` REAL_Town.hpp ``` describes the environment (the population, school, households, etc) and main file ``` REAL_Simulation_parallel.cpp ``` runs the simulation. Model output (of 2000 trials) is printed to a separate CSV for each unique combination of parameter values.
+There are three code files (``` REAL_* ```) used for the simulation: ``` REAL_Person.hpp ``` describes each agent, ``` REAL_Town.hpp ``` describes the environment (the population, school, households, etc) and main file ``` REAL_Simulation.cpp ``` runs the simulation. Model output (of 2000 trials) is printed to a separate CSV for each unique combination of parameter values.
 
 ## INDIVIDUALS
 
@@ -68,7 +68,7 @@ Tests the basic member functions, specifically testing that updates to disease s
 
 ### ``` UNIT_TEST_Town_classroom_shutdown_*.cpp ```
 
-Compiles with ``` g++ UNIT_TEST_Town_classroom_shutdown_*.cpp -o test ```
+Compiles with ``` g++ UNIT_TEST_Town_classroom_shutdown_*.cpp -o test ```.
 
 Tests the classroom shutdown upon symptomatic infection of a member of some specific classroom and teacher replacement, with steady school attendance (so all teachers and students are in Cohort 0). Two classrooms are filled with susceptible agents. 
 
@@ -96,4 +96,28 @@ Expected result: class reopens the next Monday.
 ### ``` UNIT_TEST_Town_weekend_closures_*.hpp ```
 
 
-Compiles with ``` g++ UNIT_TEST_Town_weekend_closures_*.cpp -o test ```
+Compiles with ``` g++ UNIT_TEST_Town_weekend_closures_*.cpp -o test ```.
+
+Tests whether classes close (are emptied) over the weekend and if weekly cohorts are switched.
+
+The test case is:
+
+Classrooms 0 and 2 are filled with susceptibles; teachers in cohort 0 (they attend every school day and are shared between cohorts) and children split between cohorts 1 and 2.
+
+Time is advanced through the week (seven time steps), where Classes 0 and 2 should be filled during the school week with students in cohort 1, and closed (empty) on weekends. On the following Monday (time step 7), the classes should be filled with the assigned teachers and the cohort 2 students.
+
+1) A student in Class 0 is infected.
+
+Expected result: Class 2 remains unaffected, while Class 0 is closed. The next week, cohort 2 rotates through Class 2, with Class 1 still closed. Two (2) weeks after the original closure, both classes should reopen with students from the first cohort in attendance.
+
+## SIMULATION
+
+### ``` REAL_Simulation.cpp ```
+
+Compiles with ``` g++ -g -Wfatal-errors -std=c++17 REAL_Simulation.cpp -o test -ltbb -O3 ```.
+
+We gathered results from 2000 instances each of ~243 parameter combinations; each single instance uses a unique random generator seed, so that all parameter combinations are run with the same sequence of generated random numbers. The school is filled and the children are assigned to classrooms either randomly, or in sibling groups. Households contributing teachers (and substitutes if necessary) are created separately. An index case is chosen from among the susceptible school attendees, and a proportion of other agents in the population are randomly chosen and marked as recovered (R).
+
+In each time step, community infection occurs for both school attendees and non-school attendees; effective contacts within the house also allow for transmission. During each school day, infections occur within the class (between members of the same classroom) and in common areas (by letting everyone come into contact with everyone else). Through all these steps, the number of infections produced by the index case is tracked over the life of the simulation.
+
+At the end of each day (time step), results are written and agents transition between disease stages according to the rates given [here](https://doi.org/10.1101/2020.08.07.20170407).
