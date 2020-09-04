@@ -3,7 +3,7 @@
 
 /*
 	I put *lots* of assertions in the code to make sure I didn't misspell or misroute anything.
-	Turn all the asserts off (#define NDEBUG in REAL_Town.hpp) when gathering data. I reckon it's ~20 times faster without the assertions.
+	Turn all the asserts off when gathering data. I reckon it's ~20 times faster without the assertions.
 */
 #define NDEBUG
 
@@ -155,7 +155,7 @@ class Town
 				in class every week without alternation (unless replaced by a substitute when they fall ill)
 
 			Ex. First week: 	Teacher: Comrade Ogilvy,	Students: cohort 1
-				Second week: 	Teacher: Comrade Ogilvy,		Students: cohort 2
+				Second week: 	Teacher: Comrade Ogilvy,	Students: cohort 2
 				Third week:		Teacher: Comrade Ogilvy,	Students: cohort 1
 				und so weiter...
 		*/
@@ -993,6 +993,8 @@ class Town
 			_households[new_household].insert(agent_number);
 			_Population[agent_number].set_household(new_household);
 		}
+
+
 
 		// print the number of adult, children and other in the population
 		void print_age_distribution()

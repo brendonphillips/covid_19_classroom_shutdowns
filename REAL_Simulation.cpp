@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 					substitute teachers from without violating the original assumption of only one teacher per
 					household at this centre, with no cohabiting children and teachers attending the same centre
 			*/
-			const int Substitute_Teacher_Factor = 2; // 3
+			const int Substitute_Teacher_Factor = 3;
 			std::vector<int> teacher_households;
 			do
 			{
