@@ -5,13 +5,13 @@ This project models the spread of infections and the number of student days miss
 Short description: a total of 21 scenarios were modelled, including different student-teacher ratios in classrooms, low and high modes of disease transmission, different classroom allocations, and student cohorting. This is the C++ code for an agent-based model; each agent represents an individual, either a child, (non-teacher) adult, or teacher. 
 
 Results we're interested in (for each parameter combination):
-1) Infections occurring in each model location (household infection, school common area infection, classroom infection, community transmission, total infections).
-2) Student days missed: a classroom is closed for 14 days when a student/teacher in that room shows symptoms of the disease; all children/teachers assigned to that classroom are sent home until that classroom reopens. A time step in the model is considered to be a missed student day for that agent when an asymptomatic child is kept home on a school day because their classroom was shut down due to infection. Weekends are not counted, neither are any days when the student is symptomatic or in a cohort not due in class that week; they wouldn't have been in school anyway.
-3) Length of the simulation: the simulation stops when there are no active infections in the entire population. As such, the length of the run tells us how long this period of disease lasted.
-4) Secondary infections: an index case is infected at random. The number of infections produced by this index case gives an estimation of the effective reproductive ratio of the disease. We're also interested in the number of runs with secondary spread; the disease doesn't 'catch on' in every simulation. Because of parameter values, some infections don't spread widely. 
-5) Time between the index case and the first secondary case.
-6) Evolution of the health of the population (how many people are sick at each time step, for example). We're also interested in seeing when the population infection rate peaks within the first month of disease spread.
-7) Number of classrooms closed at each time step. 
+- Infections occurring in each model location (household infection, school common area infection, classroom infection, community transmission, total infections).
+- Student days missed: a classroom is closed for 14 days when a student/teacher in that room shows symptoms of the disease; all children/teachers assigned to that classroom are sent home until that classroom reopens. A time step in the model is considered to be a missed student day for that agent when an asymptomatic child is kept home on a school day because their classroom was shut down due to infection. Weekends are not counted, neither are any days when the student is symptomatic or in a cohort not due in class that week; they wouldn't have been in school anyway.
+- Length of the simulation: the simulation stops when there are no active infections in the entire population. As such, the length of the run tells us how long this period of disease lasted.
+- Secondary infections: an index case is infected at random. The number of infections produced by this index case gives an estimation of the effective reproductive ratio of the disease. We're also interested in the number of runs with secondary spread; the disease doesn't 'catch on' in every simulation. Because of parameter values, some infections don't spread widely. 
+- Time between the index case and the first secondary case.
+- Evolution of the health of the population (how many people are sick at each time step, for example). We're also interested in seeing when the population infection rate peaks within the first month of disease spread.
+- Number of classrooms closed at each time step. 
 
 There are three code files (``` REAL_* ```) used for the simulation: ``` REAL_Person.hpp ``` describes each agent, ``` REAL_Town.hpp ``` describes the environment (the population, school, households, etc) and main file ``` REAL_Simulation_parallel.cpp ``` runs the simulation. Model output (of 2000 trials) is printed to a separate CSV for each unique combination of parameter values.
 
@@ -33,7 +33,7 @@ Also in the file are constructors, getters and an overload for the stream insert
 
 ### ``` UNIT_TEST_Person_humourless.cpp ```
 
-Comment the access specifier ``` protected: ``` in REAL_Person.hpp and compile with ``` g++ UNIT_TEST_Person_humourless.cpp -o test ```.
+Comment the access specifier ``` protected: ``` in REAL_Person.hpp; compiles with ``` g++ UNIT_TEST_Person_humourless.cpp -o test ```.
 
 Test of the Person class: changing disease status, household number, classroom number, constructors and printing.
 
@@ -60,11 +60,40 @@ Notable functions:
 - ``` agents ``` vs. ``` agents_in_school ```: the ``` agents ``` function returns a set of all individuals in the population with the desired status, while ``` agents_in_school ``` returns a set of only students and teachers. The same applied to the functions ``` *_proportion ```.
 - ``` set_classroom ```: cohort number -1 represents anyone not attending the school in any capacity, cohort 0 represents those individuals who go to class every day during the school week (all teachers, and students in a single cohort scenario), and cohorts 1 and 2 represent the sets of students that alternate based on week (even/odd).
 
-### ``` UNIT_Test_Town_general.cpp ```
+### ``` UNIT_TEST_Town_general.cpp ```
 
-Compile with ``` g++ UNIT_TEST_Town_general.cpp -o test ```.
+Compiles with ``` g++ UNIT_TEST_Town_general.cpp -o test ```.
+
+Tests the basic member functions, specifically testing that updates to disease status, household and classroom are made consistently (for instance, if an agent recovers, the individual status of the Person will change, as should the compartment in which they're listed in the Town object ).
+
+### ``` UNIT_TEST_Town_classroom_shutdown_*.cpp ```
+
+Compiles with ``` g++ UNIT_TEST_Town_classroom_shutdown_*.cpp -o test ```
+
+Tests the classroom shutdown upon symptomatic infection of a member of some specific classroom and teacher replacement, with steady school attendance (so all teachers and students are in Cohort 0). Two classrooms are filled with susceptible agents. 
+
+The test case is:
+
+1) Child 1 in Class 0 is infected. on day 0. Class 0 should be shut down (empty) on the next day, and remain closed for 14 time steps. 
+2) Teacher 5 from Class 0 is symptomatically infected on day 9 of the shut down, so that the classroom will reopen before she recovers. By design, her replacement should be Adult 19, so Adult 19 will be symptomatically infected too, making them ineligible for selection.
+3) Child 7 from Class 0 is symptomatically infected the day before Class 0 reopens. 
+
+Expected result: all children should be back in Class 0 the next week except for Child 7 (sick children are not replaced), with Teacher 5 replaced by Teacher 20. None of this will influence Class 2.
+
+4) Time is advanced 8 days.
+
+Expected result: Teacher 5 has recovered and reprised her role in Class 1. Teacher 20 has been sacked, and Child 7 still hasn't recovered.
+
+5) Time is advanced 7 days;
+
+Expected result: Child 7 is recovered and back in Class 0.
+
+6) Child 22 in Class 2 is infected. The classroom is shut the following Monday.
+7) Time is advanced 14 days
+
+Expected result: class reopens the next Monday.
+
+### ``` UNIT_TEST_Town_weekend_closures_*.hpp ```
 
 
-
-
-
+Compiles with ``` g++ UNIT_TEST_Town_weekend_closures_*.cpp -o test ```
