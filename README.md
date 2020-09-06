@@ -2,16 +2,16 @@
 
 This project models the spread of infections and the number of student days missed due to shutdowns; find the report [here](https://doi.org/10.1101/2020.08.07.20170407), currently awaiting peer-review.
 
-Short description: a total of 21 scenarios were modelled, including different student-teacher ratios in classrooms, low and high modes of disease transmission, different classroom allocations, and student cohorting. This is the C++ code for an agent-based model; each agent represents an individual, either a child, (non-teacher) adult, or teacher. 
+Short description: a total of 21 scenarios were modelled, including different student-teacher ratios in classrooms, low and high modes of disease transmission, different classroom allocations, and student cohorting. This is the C++ code for an agent-based model; each agent represents an individual, either a child, (non-teacher) adult, or teacher.
 
 Results we're interested in (for each parameter combination):
 - Infections occurring in each model location (household infection, school common area infection, classroom infection, community transmission, total infections).
 - Student days missed: a classroom is closed for 14 days when a student/teacher in that room shows symptoms of the disease; all children/teachers assigned to that classroom are sent home until that classroom reopens. A time step in the model is considered to be a missed student day for that agent when an asymptomatic child is kept home on a school day because their classroom was shut down due to infection. Weekends are not counted, neither are any days when the student is symptomatic or in a cohort not due in class that week; they wouldn't have been in school anyway.
 - Length of the simulation: the simulation stops when there are no active infections in the entire population. As such, the length of the run tells us how long this period of disease lasted.
-- Secondary infections: an index case is infected at random. The number of infections produced by this index case gives an estimation of the effective reproductive ratio of the disease. We're also interested in the number of runs with secondary spread; the disease doesn't 'catch on' in every simulation. Because of parameter values, some infections don't spread widely. 
+- Secondary infections: an index case is infected at random. The number of infections produced by this index case gives an estimation of the effective reproductive ratio of the disease. We're also interested in the number of runs with secondary spread; the disease doesn't 'catch on' in every simulation. Because of parameter values, some infections don't spread widely.
 - Time between the index case and the first secondary case.
 - Evolution of the health of the population (how many people are sick at each time step, for example). We're also interested in seeing when the population infection rate peaks within the first month of disease spread.
-- Number of classrooms closed at each time step. 
+- Number of classrooms closed at each time step.
 
 There are three code files (``` REAL_* ```) used for the simulation: ``` REAL_Person.hpp ``` describes each agent, ``` REAL_Town.hpp ``` describes the environment (the population, school, households, etc) and main file ``` REAL_Simulation.cpp ``` runs the simulation. Model output (of 2000 trials) is printed to a separate CSV for each unique combination of parameter values.
 
@@ -56,7 +56,7 @@ The characteristics of each Town are:
 All member functions ``` check_* ``` are used in assertions to check function inputs, and functions ``` print_* ``` output to the terminal. The stream insertion operator prints a summary of the Town object.
 
 Notable functions:
-- ``` replace_sick_teacher ```: when a teacher falls ill and does not recover in time for the start of class, a substitute must be chosen from a household with no-one attending the educational institution in any capacity. 'Extra households' are made in the main simulation for this reason. If, for some reason, a substitute can't be found with that constraint, the trial will print an error message and quit. 
+- ``` replace_sick_teacher ```: when a teacher falls ill and does not recover in time for the start of class, a substitute must be chosen from a household with no-one attending the educational institution in any capacity. 'Extra households' are made in the main simulation for this reason. If, for some reason, a substitute can't be found with that constraint, the trial will print an error message and quit.
 - ``` agents ``` vs. ``` agents_in_school ```: the ``` agents ``` function returns a set of all individuals in the population with the desired status, while ``` agents_in_school ``` returns a set of only students and teachers. The same applied to the functions ``` *_proportion ```.
 - ``` set_classroom ```: cohort number -1 represents anyone not attending the school in any capacity, cohort 0 represents those individuals who go to class every day during the school week (all teachers, and students in a single cohort scenario), and cohorts 1 and 2 represent the sets of students that alternate based on week (even/odd).
 
@@ -70,13 +70,13 @@ Tests the basic member functions, specifically testing that updates to disease s
 
 Compiles with ``` g++ UNIT_TEST_Town_classroom_shutdown_*.cpp -o test ```.
 
-Tests the classroom shutdown upon symptomatic infection of a member of some specific classroom and teacher replacement, with steady school attendance (so all teachers and students are in Cohort 0). Two classrooms are filled with susceptible agents. 
+Tests the classroom shutdown upon symptomatic infection of a member of some specific classroom and teacher replacement, with steady school attendance (so all teachers and students are in Cohort 0). Two classrooms are filled with susceptible agents.
 
 The test case is:
 
-1) Child 1 in Class 0 is infected. on day 0. Class 0 should be shut down (empty) on the next day, and remain closed for 14 time steps. 
+1) Child 1 in Class 0 is infected. on day 0. Class 0 should be shut down (empty) on the next day, and remain closed for 14 time steps.
 2) Teacher 5 from Class 0 is symptomatically infected on day 9 of the shut down, so that the classroom will reopen before she recovers. By design, her replacement should be Adult 19, so Adult 19 will be symptomatically infected too, making them ineligible for selection.
-3) Child 7 from Class 0 is symptomatically infected the day before Class 0 reopens. 
+3) Child 7 from Class 0 is symptomatically infected the day before Class 0 reopens.
 
 Expected result: all children should be back in Class 0 the next week except for Child 7 (sick children are not replaced), with Teacher 5 replaced by Teacher 20. None of this will influence Class 2.
 

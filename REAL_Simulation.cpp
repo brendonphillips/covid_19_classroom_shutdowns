@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
 	std::vector<float> Background_Infection_Rate_set {};
 
 	// for comparison, we vary each parameter by 50% of its baseline value
-	for(float mult=0.5; mult<1.51; mult+=0.5)
+	for(float mult=1; mult<1.5; mult+=1)
+	// for(float mult=0.5; mult<1.51; mult+=0.5)
 	{
 		B_H_set.push_back(mult*B_H_base);
 		Alpha_0_set.push_back(mult*Alpha_0_base);
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
 	{
 		const std::string file_name = get_filename(A0, AC, BH, LAM, RI);
 		// if the parameter combination has already been run, skip it
-		if( std::filesystem::exists(file_name) ){ continue; }
+		// if( std::filesystem::exists(file_name) ){ continue; }
 		// else, add it to the tuples
 		Parameter_Tuples.push_back(std::make_tuple(BH, AC, A0, LAM, RI) );
 	}}}}}
@@ -105,11 +106,11 @@ int main(int argc, char *argv[])
 		std::make_tuple(1,30,1),
 		std::make_tuple(1,15,2),
 		std::make_tuple(1,15,1),
-		std::make_tuple(1,8,2),
-		std::make_tuple(1,8,1),
 		std::make_tuple(2,15,1),
-		std::make_tuple(3,7,1),
-		std::make_tuple(2,8,1)
+		std::make_tuple(2,8,1),
+		std::make_tuple(1,8,1),
+		std::make_tuple(1,8,2),
+		std::make_tuple(3,7,1)
 	});
 
 	// 2000 trials per parameter combination; 60% of them are lost due to no spread, so go big or go home
@@ -128,8 +129,8 @@ int main(int argc, char *argv[])
 		Seeds.push_back(d.count());
 	}
 
-	// std::for_each(std::execution::seq, Parameter_Tuples.begin(), Parameter_Tuples.end(), [&](auto&& tuple) // for testing
-	std::for_each(std::execution::par_unseq, Parameter_Tuples.begin(), Parameter_Tuples.end(), [&](auto&& parameter_tuple) // for the actual run
+	std::for_each(std::execution::seq, Parameter_Tuples.begin(), Parameter_Tuples.end(), [&](auto&& parameter_tuple) // for testing
+	// std::for_each(std::execution::par_unseq, Parameter_Tuples.begin(), Parameter_Tuples.end(), [&](auto&& parameter_tuple) // for the actual run
 	{
 		// take a parameter tuple and get the individual parameter values
 		const float B_H = 							std::get<0>(parameter_tuple);
@@ -188,7 +189,6 @@ int main(int argc, char *argv[])
 				{
 					// get the household size and distribution
 					std::pair<int, int> children_first_parents_second = NorthShore.children_and_adults_household_size_distribution(randfloat(generator));
-
 					// add the parents to the model - they don't attend the school
 					for(int num_adults = 0; num_adults < children_first_parents_second.second; ++num_adults)
 					{
@@ -231,7 +231,6 @@ int main(int argc, char *argv[])
 							}
 						}
 					}
-
 					// push that sibling group to the enrollment list
 					if(not centre_is_full){ children_accepted_to_centre.push_back({}); }
 					// move on to the next household
@@ -267,6 +266,7 @@ int main(int argc, char *argv[])
 					{
 						// fetch a group of siblings, and remove it from the list
 						std::vector<int> this_family = children_enrolled_by_house.back();
+
 						children_enrolled_by_house.pop_back();
 
 						// we scan each not-full class for empty chairs
@@ -274,12 +274,23 @@ int main(int argc, char *argv[])
 						{
 							// get the number of seats available
 							const int Seats_Available = Num_Children_per_Classroom - NorthShore.classroom(class_number).size();
-							// if there's no space, remove this classroom from the availability list
-							if(not Seats_Available){ available_classes.erase(class_number); continue; }
+							// if there's no space left, move to the next classroom
+							if(not Seats_Available)
+							{
+								continue;
+							}
 							// if we can't fit this sibling group into this class, move on to the next one
-							if(this_family.size() > Seats_Available){ continue; }
+							if(this_family.size() > Seats_Available)
+							{
+								continue;
+							}
 							// else, if there's room, shove them in there
 							for(int child : this_family){ NorthShore.set_classroom(child, class_number, cohort_number); }
+							// if there's no space left in this class, remove this classroom from the availability list
+							if((Num_Children_per_Classroom - NorthShore.classroom(class_number).size()) == 0)
+							{
+								available_classes.erase(class_number);
+							}
 							// we're done with this family
 							this_family.clear();
 							// we've put them in, so no need to keep searching classrooms - move on to the next group
@@ -289,6 +300,21 @@ int main(int argc, char *argv[])
 						if(not this_family.empty()){ whole_family_couldnt_fit_into_a_single_classroom.push_back(this_family); }
 					}
 					while(children_enrolled_by_house.size()); // keep going while we still have unenrolled children left
+
+					// if we couldn't fit the entire sibling group into a classroom, break them up among the classrooms with space in them
+					for(std::vector<int> family : whole_family_couldnt_fit_into_a_single_classroom)
+					{
+						for(int child : family) // for every child, find a classroom with space and put them in there
+						{
+							for(int class_number : available_classes)
+							{
+								if((Num_Children_per_Classroom - NorthShore.classroom(class_number).size())!=0){ NorthShore.set_classroom(child, class_number, cohort_number); break; }
+								// if there's isn't a free table, mark that classroom as full and move on
+								else { available_classes.erase(class_number); }
+
+							}
+						}
+					}
 				}
 
 				// randomly assigning them - arguably easier
@@ -315,6 +341,8 @@ int main(int argc, char *argv[])
 					std::exit(EXIT_FAILURE);
 				}
 			}
+
+			assert(set_of_values(set_of_values( NorthShore.classrooms() )).size() == Num_Children_per_Classroom*Number_of_Classrooms);
 
 			/*
 				Creation of the teacher households, using the same household counter from before

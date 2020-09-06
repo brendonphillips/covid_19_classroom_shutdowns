@@ -5,7 +5,7 @@
 	I put *lots* of assertions in the code to make sure I didn't misspell or misroute anything.
 	Turn all the asserts off when gathering data. I reckon it's ~20 times faster without the assertions.
 */
-#define NDEBUG
+// #define NDEBUG
 
 #include "REAL_Person.hpp"
 #include "prettyprint.hpp" // convenient for printing the contents of the STL containers without constantly writing loops
@@ -32,6 +32,20 @@ template<typename TK, typename TV> std::set<TV> set_of_values(std::map<TK, TV> c
 	for(std::pair<TK, TV> const& element : input_map) retval.insert(element.second);
 	return retval;
 }
+template<typename TV> std::set<TV> set_of_values(std::set<std::set<TV>> const& input_map)
+{
+	std::set<TV> retval;
+	for(std::set<TV> const& element : input_map) retval.insert(element.begin(), element.end());
+	return retval;
+}
+template<typename TV> std::set<TV> set_of_values(std::vector<std::vector<TV>> const& input_map)
+{
+	std::set<TV> retval;
+	for(std::vector<TV> const& element : input_map) retval.insert(element.begin(), element.end());
+	return retval;
+}
+
+
 // template<typename TK, typename TV> std::vector<TV> vector_of_values(std::map<TK, TV> const& input_map)
 // {
 // 	std::vector<TV> retval;
