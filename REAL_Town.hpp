@@ -1,21 +1,17 @@
 #ifndef REAL_TOWN_HPP_
 #define REAL_TOWN_HPP_
-
 /*
 	I put *lots* of assertions in the code to make sure I didn't misspell or misroute anything.
 	Turn all the asserts off when gathering data. I reckon it's ~20 times faster without the assertions.
 */
-// #define NDEBUG
+#define NDEBUG
 
+#include "REAL_Parameters_Helpers.hpp"
 #include "REAL_Person.hpp"
-#include "prettyprint.hpp" // convenient for printing the contents of the STL containers without constantly writing loops
 #include <numeric>
 #include <cassert> // assertions to check the inputs to some of the functions
-#include <vector>
 #include <map>
-#include <set>
 #include <random>
-#include <sstream> // used in the "print to the terminal", since C++ can't concatenate strings on the fly
 
 std::random_device rd;
 std::mt19937 generator(rd());
@@ -44,7 +40,6 @@ template<typename TV> std::set<TV> set_of_values(std::vector<std::vector<TV>> co
 	for(std::vector<TV> const& element : input_map) retval.insert(element.begin(), element.end());
 	return retval;
 }
-
 
 // template<typename TK, typename TV> std::vector<TV> vector_of_values(std::map<TK, TV> const& input_map)
 // {
