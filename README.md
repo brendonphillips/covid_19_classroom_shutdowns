@@ -114,7 +114,7 @@ Expected result: Class 2 remains unaffected, while Class 0 is closed. The next w
 
 ### ``` REAL_Simulation.cpp ```
 
-Compiles with ``` g++ -g -Wfatal-errors -std=c++17 REAL_Simulation.cpp -o test -ltbb -O3 ```. You can fine ```#define NDEBUG``` top of the ```REAL_Town.hpp``` file.
+Compiles with ``` g++ -g -Wfatal-errors -std=c++17 REAL_Simulation.cpp -o test -ltbb -O3 ```. You can find the ```#define NDEBUG``` top of the ```REAL_Town.hpp``` file.
 
 We gathered results from 2000 instances each of ~243 parameter combinations; each single instance uses a unique random generator seed, so that all parameter combinations are run with the same sequence of generated random numbers. The school is filled and the children are assigned to classrooms either randomly, or in sibling groups. Households contributing teachers (and substitutes if necessary) are created separately. An index case is chosen from among the susceptible school attendees, and a proportion of other agents in the population are randomly chosen and marked as recovered (R).
 
