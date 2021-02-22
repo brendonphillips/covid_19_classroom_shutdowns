@@ -12,6 +12,8 @@ Results we're interested in (for each parameter combination):
 - Time between the index case and the first secondary case.
 - Evolution of the health of the population (how many people are sick at each time step, for example). We're also interested in seeing when the population infection rate peaks within the first month of disease spread.
 - Number of classrooms closed at each time step.
+- Unit incease (the effect of adding a single student or teacher to each classroom)
+- Exploration of a reduced time scenario involving a lower centre/school infection rate, with compensatory higher household infection rates
 
 There are three code files (``` REAL_* ```) used for the simulation: ``` REAL_Person.hpp ``` describes each agent, ``` REAL_Town.hpp ``` describes the environment (the population, school, households, etc) and main file ``` REAL_Simulation.cpp ``` runs the simulation. Model output (of 2000 trials) is printed to a separate CSV for each unique combination of parameter values.
 
