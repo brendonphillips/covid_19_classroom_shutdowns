@@ -227,9 +227,18 @@ TIC(0);
 							/*
 								For anyone reading this, please help me out with something.
 
-								Notice that the iteration in the following loop is different from the range iteration above (inside the do-while loop, iterating over available_classes). This is because, even though range iteration in the above do-while loop works fine (even with erasing the number of full classes, the line "available_classes.erase(class_number)"), range iteration in the following loop will find values of class_number that are NOT IN available_classes. Specifically, class numbers 0 and 65536 in the list {3,4} (of available classes).
+								Notice that the iteration in the following loop is different from the range iteration above (inside the do-while loop, 
+								iterating over available_classes). This is because, even though range iteration in the above do-while loop works fine 
+								(even with erasing the number of full classes, the line "available_classes.erase(class_number)"), range iteration in 
+								the following loop will find values of class_number that are NOT IN available_classes. Specifically, class numbers 0 
+								and 65536 in the list {3,4} (of available classes).
 
-								This style of iteration avoids "finding" these weirdly specific non-member values (during serial runs) and segfaults (during parallel execution). My question: WHY? What have I done wrong, or is the compiler just taking the piss? This std::set<int> isn't shared between instances, so why does it make a difference if it's parallel (it segfaults while running 12 instances in parallel, not in serial)? Is std::set<int> being corrupted somehow (that still doesn't explain the very calmly chosen nonsense values, which happens in all cases in this loop but not the one above)? I'm nowhere near RAM capacity, and GDB and Valgrind weren't particularly helpful.
+								This style of iteration avoids "finding" these weirdly specific non-member values (during serial runs) and segfaults 
+								(during parallel execution). My question: WHY? What have I done wrong, or is the compiler just taking the piss? This 
+								std::set<int> isn't shared between instances, so why does it make a difference if it's parallel (it segfaults while 
+								running 12 instances in parallel, not in serial)? Is std::set<int> being corrupted somehow (that still doesn't explain 
+								the very calmly chosen nonsense values, which happens in all cases in this loop but not the one above)? I'm nowhere near 
+								RAM capacity, and GDB and Valgrind weren't particularly helpful.
 
 								This may be elementary (I *have* been staring at this for a while now), but I've got nothing...
 
