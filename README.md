@@ -1,6 +1,6 @@
 # Model-based projections for COVID-19 outbreak size and student-days lost to closure in Ontario childcare centers and primary schools
 
-This project models the spread of infections and the number of student days missed due to shutdowns; find the report [here](https://doi.org/10.1101/2020.08.07.20170407), currently awaiting peer-review.
+This project models the spread of infections and the number of student days missed due to shutdowns; find the report [here](https://www.nature.com/articles/s41598-021-85302-6).
 
 Short description: a total of 21 scenarios were modelled, including different student-teacher ratios in classrooms, low and high modes of disease transmission, different classroom allocations, and student cohorting. This is the C++ code for an agent-based model; each agent represents an individual, either a child, (non-teacher) adult, or teacher.
 
